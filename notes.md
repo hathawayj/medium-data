@@ -10,3 +10,5 @@
 - https://duckdb.org/docs/data/parquet
 - https://duckdb.org/2021/06/25/querying-parquet.html
 - https://github.com/MonetDB/MonetDBLite-R/issues/38#issuecomment-490589276
+- https://shekhargulati.com/2019/12/15/the-5-minute-introduction-to-duckdb-the-sqlite-for-analytics/
+- https://dev.to/volkmarr/duckdb-an-embedded-db-for-data-wrangling-4hfm
