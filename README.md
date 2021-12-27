@@ -37,8 +37,28 @@ Wes McKinney and Hadley Wickham developed the Feather file format around 2016 to
 > 3. Internal structure supports random access and slicing from the middle. This also means that you can read a large file chunk by chunk without having to pull the whole thing into memory.
 > 4. Complete support for all Arrow data types. Parquet has a smaller type system and while most of Arrow can be stored in Parquet, there are some things that cannot (like unions). Support for reading nested Parquet data is not fully implemented yet, but should be in 2020 (see ARROW-1644).
 
-## DUCKDB
+## I/O and Wrangling in R and Python
 
+These file formats and in-memory constructs are only helpful for medium data projects if we can leverage them using the tools on our local machines - R, Python, and SQL. 
+
+### `pyarrow.parquet.read_table()` and `pyarrow.dataset.dataset()`
+
+
+
+### dplyr
+
+[Arrow's documentation on leveraging dplyr](https://arrow.apache.org/docs/r/articles/dataset.html). Importantly they highlight which dplyr verbs work using Arrow.
+
+> Arrow supports the dplyr verbs `mutate()`, `transmute()`, `select()`, `rename()`, `relocate()`, `filter()`, and `arrange()`.
+> Aggregation is not yet supported, so before you call `summarise()` or other verbs with aggregate functions, use `collect()` to pull the selected subset of the data into an in-memory R data frame.
+
+They alsow help us understand how to handle a single file that is too big for memory.
+
+> For example, you have a single CSV file that is too big to read into memory. You could pass the file path to `open_dataset()`, use `group_by()` to partition the Dataset into manageable chunks, then use `write_dataset()` to write each chunk to a separate Parquet file—all without needing to read the full CSV file into R.
+
+The [arrow package] has [`open_dataset()`](https://arrow.apache.org/docs/r/reference/open_dataset.html) and varied [`read_` functions](https://arrow.apache.org/docs/r/reference/index.html) for importing data. We want to leverage the options that keep the data in the [Arrow Table format](https://arrow.apache.org/docs/r/reference/Table.html).
+
+### DUCKDB
 
 ## Compression and Querying
 
@@ -50,3 +70,7 @@ Wes McKinney and Hadley Wickham developed the Feather file format around 2016 to
 ### R
 
 ### Python
+
+## Resources
+
+- https://blog.datasyndrome.com/python-and-parquet-performance-e71da65269ce
