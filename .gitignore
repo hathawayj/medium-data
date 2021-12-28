@@ -1,3 +1,12 @@
 library/*.csv
+
+nyc-taxi
+
 parquet/collection/*.parquet
 parquet/checkouts/*.parquet
+
+feather/checkouts/*.feather
+feather/collection/*.feather
+
+parquet_grouped/checkouts
+parquet_grouped/collection

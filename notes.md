@@ -12,3 +12,8 @@
 - https://github.com/MonetDB/MonetDBLite-R/issues/38#issuecomment-490589276
 - https://shekhargulati.com/2019/12/15/the-5-minute-introduction-to-duckdb-the-sqlite-for-analytics/
 - https://dev.to/volkmarr/duckdb-an-embedded-db-for-data-wrangling-4hfm
+
+## Videos
+
+- https://www.dremio.com/resources/webinars/columnar-roadmap-apache-parquet-and-arrow/ # first 20 minutes.
+- https://www.youtube.com/watch?v=fyj4FyH3XdU

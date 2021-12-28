@@ -39,11 +39,23 @@ Wes McKinney and Hadley Wickham developed the Feather file format around 2016 to
 
 ## I/O and Wrangling in R and Python
 
-These file formats and in-memory constructs are only helpful for medium data projects if we can leverage them using the tools on our local machines - R, Python, and SQL. 
+These file formats and in-memory constructs are only helpful for medium data projects if we can leverage them using the tools on our local machines - R, Python, and SQL. Arrow is making progress on the available wrangling functions available before pulling the entire dataset into memory. Our goal is to leverage the Arrow methods before we run `.to_pandas()` in Python and `collect()` in R. 
 
-### `pyarrow.parquet.read_table()` and `pyarrow.dataset.dataset()`
+### `pyarrow.parquet.read_table()` 
 
+The `pyarrow.parquet.read_table()` returns a [`pyarrow.Table`](https://arrow.apache.org/docs/python/generated/pyarrow.Table.html#pyarrow.Table) which facilitates data wrangling methods similar to [`pandas.DataFrame`](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html)
 
+Some of the most pertinent methods follow.
+
+- `.slice()`: Much like `head()` or `limit()`.
+- `.add_column()`: Add column to Table at position
+- `.append_column()`: Append column at end of columns.
+- `.remove_column()`: Create new Table with the indicated column removed.
+- `.set_column()`: Replace column in Table at position.
+- `.select()`: Select columns of the Table.
+- `.drop()`: Drop one or more columns and return a new table.
+- `.filter()`: Select records from a Table.
+- `.to_pandas()`: Converts to a pandas DataFrame.
 
 ### dplyr
 
@@ -60,10 +72,63 @@ The [arrow package] has [`open_dataset()`](https://arrow.apache.org/docs/r/refer
 
 ### DUCKDB
 
-## Compression and Querying
+[DuckDB](https://duckdb.org/) is an in-process SQL OLAP database management system.
 
+DuckDB provides and R package, SQL interface, and Python package that allows us to directly interact with the `.parquet` files.  Their [overview post in December 2021](https://duckdb.org/2021/12/03/duck-arrow.html) provides clean examples.
 
-## Parallelization
+#### R
+
+We can leverage additional dplyr manipulations beyond what is available in the arrow R package. Notice in the following example that `mutate()` and `summarise()` are available in `group_by()`.
+
+```r
+library(duckdb)
+library(arrow)
+library(dplyr)
+
+# Open dataset using year,month folder partition
+ds <- arrow::open_dataset("nyc-taxi", partitioning = c("year", "month"))
+
+ds %>%
+  # Look only at 2015 on, where the number of passenger is positive, the trip distance is
+  # greater than a quarter mile, and where the fare amount is positive
+  filter(year > 2014 & passenger_count > 0 & trip_distance > 0.25 & fare_amount > 0) %>%
+  # Pass off to DuckDB
+  to_duckdb() %>%
+  group_by(passenger_count) %>%
+  mutate(tip_pct = tip_amount / fare_amount) %>%
+  summarise(
+    fare_amount = mean(fare_amount, na.rm = TRUE),
+    tip_amount = mean(tip_amount, na.rm = TRUE),
+    tip_pct = mean(tip_pct, na.rm = TRUE)
+  ) %>%
+  arrange(passenger_count) %>%
+  collect()
+
+```
+
+#### Python
+
+DuckDB has a [short script](https://github.com/duckdb/duckdb/blob/master/examples/python/duckdb-python.py) that provides example for the Python methods.
+
+We can make direct SQL queries using the `.execute()` method.
+
+```python
+# Reads Parquet File to an Arrow Table
+arrow_table = pq.read_table('integers.parquet')
+
+# Gets Database Connection
+con = duckdb.connect()
+
+(con.execute('''
+        SELECT SUM(data)
+        FROM arrow_table
+        WHERE data > 50
+    ''')
+    .fetch_arrow_table()
+    .to_pandas())
+```
+
+You can review the full [SQL Functionality](https://duckdb.org/docs/sql/introduction) of DuckDB.
 
 ## Example CDC package
 
@@ -74,3 +139,4 @@ The [arrow package] has [`open_dataset()`](https://arrow.apache.org/docs/r/refer
 ## Resources
 
 - https://blog.datasyndrome.com/python-and-parquet-performance-e71da65269ce
+- https://arrow.apache.org/docs/python/generated/pyarrow.Table.html
