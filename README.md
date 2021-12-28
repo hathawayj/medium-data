@@ -140,3 +140,5 @@ You can review the full [SQL Functionality](https://duckdb.org/docs/sql/introduc
 
 - https://blog.datasyndrome.com/python-and-parquet-performance-e71da65269ce
 - https://arrow.apache.org/docs/python/generated/pyarrow.Table.html
+- https://arrow.apache.org/cookbook/py/index.html
+- https://arrow.apache.org/cookbook/r/index.html
