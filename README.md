@@ -10,24 +10,41 @@ Pandas and R both struggle with _medium_ sized data. You may be asking what spec
 
 The latest technology advances in data handling have blurred the lines between each of these groups. Python and R can handle many other file formats and have their own formats (`.rds` and `.pkl`) for storing data more efficiently and effectively.  When users ask for data or when many institutions share data the files are usually some type of text file (`.txt`, `.csv`, `.tsv`) or an Excel file. The most ubiquitous format is `.csv`.
 
+We aim to reduce compute time and file sizes when we move into _medium_ and _big data_ applications. The [Apache Arrow project](https://arrow.apache.org/) facilitates the goal with the `.parquet` and `.feather` formats and their respective packages for leveraging those formats.
+
+The following table from the [openbridge blog](https://blog.openbridge.com/how-to-be-a-hero-with-powerful-parquet-google-and-amazon-f2ae0f35ee04) provides a strong example of the benefits of these new formats.
+
+![](img/csv_parquet.png)
 ## Apache Arrow
 
 > Apache Arrow is a software development platform for building high performance applications that process and transport large data sets. A critical component of Apache Arrow is its in-memory columnar format, a standardized, language-agnostic specification for representing structured, table-like datasets in-memory. 
 > [Apache Arrow](https://arrow.apache.org/overview/)
 
-You can read much more about the in-memory Arrow format under their [format documentation](https://arrow.apache.org/docs/format/Columnar.html). The key aspect of Arrow is 'in-memory' storage.  Once we save those files for latter use they are stored outside of memory.  For data scientists, the two most used formats are `.parquet` and `.feather`.
+You can read much more about the in-memory Arrow format under their [format documentation](https://arrow.apache.org/docs/format/Columnar.html). The key aspect of Arrow is _'in-memory'_ and _'columnar'_ storage.  Once we save those files for latter use they are stored outside of memory.  For data scientists, the two most used formats are `.parquet` and `.feather`.
 
 These new file format allows Python and R to wrangle data that is larger than memory in a performant manner. The Python package [pyarrow](https://arrow.apache.org/docs/python/index.html) and R [arrow](https://arrow.apache.org/docs/r/) packages provide access to each of these file formats.
 
-## Parquet files
+### Columnar format
+
+The image from a recent [Towards Data Science article](https://towardsdatascience.com/datastore-choices-sql-vs-nosql-database-ebec24d56106) highlights what columnar storage means.
+
+![](img/row_column.jpeg)
+
+### In-memory storage
+
+[Cloudera's blog](https://blog.cloudera.com/introducing-apache-arrow-a-fast-interoperable-in-memory-columnar-data-structure-standard/) helps us understand what the concept of _'in-memory'_ is referencing.
+
+> Two processes utilizing Arrow as their in-memory data representation can “relocate” the data from one process to the other __without serialization or deserialization__. For example, Spark could send Arrow data to a Python process for evaluating a user-defined function.
+
+### Parquet files
 
 > Apache Parquet is designed for efficient as well as performant flat columnar storage format of data compared to row based files like CSV or TSV files. [databricks](https://databricks.com/glossary/what-is-parquet)
 
 Apache also maintains the `.parquet` format.  You can read more details about the development on their [webpage](https://parquet.apache.org/documentation/latest/). The `.parquet` format performs well with Arrow in memory objects as it is a columnar format as well.  
 
-## Feather files
+### Feather files
 
-Wes McKinney and Hadley Wickham developed the Feather file format around 2016 to facilitate data collaboration between Python and R. A short time after Wes incorporated the Feather format into the Apacha Arrow project ([reference](https://wesmckinney.com/blog/feather-arrow-future/)). In 2020, the Apacha Arrow team standardized a more robust Feather format called Feather V2 that provides a rich format that can compete with `.parquet` on most fronts ([reference](https://ursalabs.org/blog/2020-feather-v2/). In comparing `.parquet` to `.feather`, Wes MicKinney's [April 23, 2020 blog post](https://ursalabs.org/blog/2020-feather-v2/) concludes;
+Wes McKinney and Hadley Wickham developed the Feather file format around 2016 to facilitate data collaboration between Python and R. A short time after Wes incorporated the Feather format into the Apache Arrow project ([reference](https://wesmckinney.com/blog/feather-arrow-future/)). In 2020, the Apache Arrow team standardized a more robust Feather format called Feather V2 that provides a rich format that can compete with `.parquet` on most fronts ([reference](https://ursalabs.org/blog/2020-feather-v2/). In comparing `.parquet` to `.feather`, Wes MicKinney's [April 23, 2020 blog post](https://ursalabs.org/blog/2020-feather-v2/) concludes;
 
 > Parquet format has become one of the “gold standard” binary file formats for data warehousing. We highly recommend it as a portable format that can be used in many different data processing systems. It also generally (but not always) produces very small files.
 > Feather V2 has some attributes that can make it attractive:
@@ -39,7 +56,7 @@ Wes McKinney and Hadley Wickham developed the Feather file format around 2016 to
 
 ## I/O and Wrangling in R and Python
 
-These file formats and in-memory constructs are only helpful for medium data projects if we can leverage them using the tools on our local machines - R, Python, and SQL. Arrow is making progress on the available wrangling functions available before pulling the entire dataset into memory. Our goal is to leverage the Arrow methods before we run `.to_pandas()` in Python and `collect()` in R. 
+These file formats and in-memory constructs are only helpful for medium data projects if we can leverage them using the tools on our local machines - R, Python, and SQL. Arrow is making progress on the available wrangling functions available before pulling the entire dataset into memory. Our goal is to leverage the Arrow methods before we run `.to_pandas()` in Python and `collect()` in R.
 
 ### `pyarrow.parquet.read_table()` 
 
@@ -64,11 +81,11 @@ Some of the most pertinent methods follow.
 > Arrow supports the dplyr verbs `mutate()`, `transmute()`, `select()`, `rename()`, `relocate()`, `filter()`, and `arrange()`.
 > Aggregation is not yet supported, so before you call `summarise()` or other verbs with aggregate functions, use `collect()` to pull the selected subset of the data into an in-memory R data frame.
 
-They alsow help us understand how to handle a single file that is too big for memory.
+They also help us understand how to handle a single file that is too big for memory.
 
 > For example, you have a single CSV file that is too big to read into memory. You could pass the file path to `open_dataset()`, use `group_by()` to partition the Dataset into manageable chunks, then use `write_dataset()` to write each chunk to a separate Parquet file—all without needing to read the full CSV file into R.
 
-The [arrow package] has [`open_dataset()`](https://arrow.apache.org/docs/r/reference/open_dataset.html) and varied [`read_` functions](https://arrow.apache.org/docs/r/reference/index.html) for importing data. We want to leverage the options that keep the data in the [Arrow Table format](https://arrow.apache.org/docs/r/reference/Table.html).
+The [arrow package](https://arrow.apache.org/docs/r/) has [`open_dataset()`](https://arrow.apache.org/docs/r/reference/open_dataset.html) and varied [`read_` functions](https://arrow.apache.org/docs/r/reference/index.html) for importing data. We want to leverage the options that keep the data in the [Arrow Table format](https://arrow.apache.org/docs/r/reference/Table.html).
 
 ### DUCKDB
 
@@ -129,13 +146,6 @@ con = duckdb.connect()
 ```
 
 You can review the full [SQL Functionality](https://duckdb.org/docs/sql/introduction) of DuckDB.
-
-## Example CDC package
-
-### R
-
-### Python
-
 ## Resources
 
 - https://blog.datasyndrome.com/python-and-parquet-performance-e71da65269ce
