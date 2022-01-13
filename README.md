@@ -17,7 +17,7 @@ The latest technology advances in data handling have blurred the lines between e
 
 You can read much more about the in-memory Arrow format under their [format documentation](https://arrow.apache.org/docs/format/Columnar.html). The key aspect of Arrow is 'in-memory' storage.  Once we save those files for latter use they are stored outside of memory.  For data scientists, the two most used formats are `.parquet` and `.feather`.
 
-These new file formats allows Python and R to wrangle data that is larger than memory in a performant manner. The Python package [pyarrow](https://arrow.apache.org/docs/python/index.html) and R [arrow](https://arrow.apache.org/docs/r/) packages provide access to each of these file formats.
+These new file format allows Python and R to wrangle data that is larger than memory in a performant manner. The Python package [pyarrow](https://arrow.apache.org/docs/python/index.html) and R [arrow](https://arrow.apache.org/docs/r/) packages provide access to each of these file formats.
 
 ## Parquet files
 
